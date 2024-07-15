@@ -102,10 +102,15 @@ hostNetwork: false
 
 metrics:
   create: false
+  createPrometheusRules: false
   namespace: ""
   labels: {}
   interval: 60s
   scrapeTimeout: ""
+  prometheusRule:
+    alertPeriodHours: 24
+    annotations: ~
+    labels: ~
 
 service:
   create: false

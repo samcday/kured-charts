@@ -1,0 +1,28 @@
+{{- if and .Values.metrics .Values.metrics.createPrometheusRules }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kured
+  labels:
+    {{- with  .Values.metrics.prometheusRule.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.metrics.prometheusRule.annotations }}
+    annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  groups:
+  - name: kured.rules
+    rules:
+    - alert: RebootRequired
+      annotations:
+        description: One or more nodes require a reboot, and the reboot daemon has failed to do so for {{ .Values.metrics.prometheusRule.alertPeriodHours }} hours.
+        runbook_url: https://kured.dev/docs/operation/
+        summary: One or more nodes require a reboot
+      expr: |-
+        sum(kured_reboot_required) > 0
+      for: {{ .Values.metrics.prometheusRule.alertPeriodHours }}h
+      labels:
+        severity: warning
+{{- end }}
